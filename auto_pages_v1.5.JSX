@@ -15,10 +15,10 @@ var dataSourceIndeces = [];
 
 setupMerge();
 //Initiate a first iteration of the script and launches dialogue window for User to select a merge document(accepts and processes only .csv and .txt with tab tab-separated files).
-function setupMerge() {
-    var excel = new ActiveXObject("Excel.Application");
-
-    if (app.documents.length > 0) {
+function setupMerge()
+{
+    if (app.documents.length > 0)
+    {
         //Prompt the user to select a data source.
         var dataSourceFile = File.openDialog("Select Data Merge source file", "*.csv;*.txt");
 
@@ -26,11 +26,12 @@ function setupMerge() {
         else exit(); //Stop the script immediately.
 
         var fileData = readMergeSourceFile(dataSourceFile);
-
         //Store data from the first column in an array.
-        for (var i = 0; i < fileData.length; i++) {
-            if (fileData[i].length > 0) {
-                dataSourceIndeces.push(fileData[i][0]); // Get first column value
+        for (var i = 0; i < fileData.length; i++)
+        {
+            if (fileData[i].length > 0)
+            {
+                dataSourceIndeces.push(fileData[i][0]); //Get first column value.
             }
         }
 
@@ -51,34 +52,37 @@ function setupMerge() {
         createDialog(0, 0);
     }
 }
-// Function to read TXT file with tab-separated values and split by lines
-function readMergeSourceFile(file) {
-    if (!file.exists) {
+//Function to read TXT file with tab-separated values and split by lines.
+function readMergeSourceFile(file)
+{
+    if (!file.exists)
+    {
         alert("File not found: " + file.fsName);
+
         return null;
     }
-
-    // Open the file for reading
+    //Open the file for reading.
     file.open("r");
-    var content = file.read(); // Read entire content
+    var content = file.read(); //Read entire content.
     file.close();
 
-    // Ensure content is properly read
-    if (!content || content.length === 0) {
+    //Ensure content is properly read
+    if (!content || content.length === 0)
+    {
         alert("The file is empty.");
         return null;
     }
-
-    // Split by new lines (handle both Windows \r\n and Unix \n formats)
+    //Split by new lines (handle both Windows \r\n and Unix \n formats).
     var lines = content.split(/\r\n|\n/);
+
     var data = [];
 
-    for (var i = 1; i < lines.length; i++) {
+    for (var i = 1; i < lines.length; i++)
+    {
         var line = lines[i];
-
-        // Ensure the line is a string before trimming and processing
+        //Ensure the line is a string before trimming and processing.
         if (line) {
-            // Split each line by tab (assuming tab-separated values)
+            // Split each line by tab (assuming tab-separated values).
             var row = line.split("\t");
             data.push(row);
         }
@@ -107,11 +111,14 @@ function createDialog(masterIndex, numberOfPages) {
     //Creates a "Next" button.
     var nextButton = buttonGroup.add('button', undefined, 'Next', { name: 'ok' });
     //Creates a "Revert" button, but only if it's a second or further iteration.
-    if (iterationCounter > 0) {
+    if (iterationCounter > 0)
+    {
         var revertButton = buttonGroup.add('button', undefined, 'Revert', { name: 'cancel' });
 
-        revertButton.onClick = function () {
+        revertButton.onClick = function ()
+        {
             cancelClicked = true;
+
             dialog.close(2);
         }
     }
@@ -120,37 +127,39 @@ function createDialog(masterIndex, numberOfPages) {
     //Set flag when cancel button is clicked.
     var cancelClicked = false;
 
-    quitButton.onClick = function () {
+    quitButton.onClick = function ()
+    {
         cancelClicked = true;
+
         dialog.close(0);
     }
-    nextButton.onClick = function () {
+    nextButton.onClick = function ()
+    {
         cancelClicked = true;
+
         dialog.close(1);
     }
-    // Override onClose event to detect "X" button
-    dialog.onClose = function () {
-        if (!cancelClicked) dialog.close(3); // X button clicked
+    //Override onClose event to detect "X" button.
+    dialog.onClose = function ()
+    {
+        if (!cancelClicked) dialog.close(3); //X button clicked.
     }
     //Now uses dialog.show() return value instead of button.onClick events(because, as it turned out, they blocked the script from running at runtime).
     var result = dialog.show();
-
-
 
     if (result == 1) //Corresponds when User presses a "Next" button: records current values, inserted by User into Dropdown list and InputField, listens them to queuedChangesValues 2D array, closes the dialogue window, updates iteration count(for display on next dialog window), applies master pages in loop and creates a new dialogue.
     {
         //Get mater page preset by index from dropdown.
         masterIndex = masterDropdown.selection.index;
 
-        var counter = 0;
-
         var numberOfPages = 0;
-
         // Start looping from the current index
-        for (var i = lastPageUpdated + 1; i < dataSourceIndeces.length + 1; i++) {
-            numberOfPages++; // Count iterations before finding "1"
+        for (var i = lastPageUpdated + 1; i < dataSourceIndeces.length + 1; i++)
+        {
+            numberOfPages++; //Count iterations before finding "1".
 
-            if (dataSourceIndeces[i] == 1) {
+            if (dataSourceIndeces[i] == 1)
+            {
                 break;
             }
         }
@@ -179,7 +188,8 @@ function createDialog(masterIndex, numberOfPages) {
     }
 }
 //Apply new master page by index (masterIndex) to the selected number of pages (numberOfPages).
-function applyMasterPages(masterIndex, numberOfPages) {
+function applyMasterPages(masterIndex, numberOfPages)
+{
     //Get a total pages amount.
     var maxPages = pages.length;
     //If estimated quantity of pages for update exceeds maximum capacity of pages in document, reduce it to appropriate number.
@@ -196,7 +206,8 @@ function applyMasterPages(masterIndex, numberOfPages) {
     lastPageUpdated += numberOfPages;
 }
 //Revert changes of document to the last state (previous iteration of script).
-function revertChanges() {
+function revertChanges()
+{
     //Get array of pages, changed on the during iteration.
     var targetPages = pages.everyItem().getElements().slice(lastPageUpdated - prevPagesUpdated[prevPagesUpdated.length - 1], lastPageUpdated);
     //Loops through targetPages and returs their previous master spread.
